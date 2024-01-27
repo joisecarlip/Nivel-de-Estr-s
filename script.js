@@ -1,7 +1,8 @@
+// script.js
+
 const Papa = require('papaparse');
 
 function cargarDatosDesdeCSV(rutaArchivo, callback) {
-  // Utilizar papaparse para cargar los datos desde el archivo CSV
   Papa.parse(rutaArchivo, {
     header: true,
     dynamicTyping: true,
@@ -30,40 +31,48 @@ function trainDecisionTree(X, y) {
 }
 
 function calcularPrecision(y_true, y_pred) {
-
   return 0.8;
 }
 
-const rutaArchivoCSV = './Datos/DATOS_ESTRES -Universidades.csv';
-cargarDatosDesdeCSV(rutaArchivoCSV, function (datos) {
-  datos = datos.map(({ DNI, EDAD, DEPARTAMENTO, UNIVERSIDAD, SEXO, 'NIVEL DE ESTRES' }) => ({
-    EDAD,
-    SEXO,
-    'NIVEL DE ESTRES',
-  }));
+function predecir() {
+  const edadInput = document.getElementById('edad');
+  const sexoInput = document.getElementById('sexo');
+  const resultadoContainer = document.getElementById('resultado-container');
 
-  datos = datos.map(({ EDAD, SEXO, 'NIVEL DE ESTRES' }) => ({
-    EDAD,
-    MASCULINO: SEXO === 1 ? 1 : 0,
-    'NIVEL DE ESTRES',
-  }));
+  const nuevaPersona = {
+    EDAD: parseInt(edadInput.value),
+    MASCULINO: parseInt(sexoInput.value) === 1 ? 1 : 0,
+  };
 
-  datos = datos.map(({ EDAD, MASCULINO, 'NIVEL DE ESTRES' }) => ({ EDAD, MASCULINO, 'NIVEL DE ESTRES' }));
+  cargarDatosDesdeCSV('./Datos/DATOS_ESTRES -Universidades.csv', function (datos) {
+    datos = datos.map(({ DNI, EDAD, DEPARTAMENTO, UNIVERSIDAD, SEXO, 'NIVEL DE ESTRES' }) => ({
+      EDAD,
+      SEXO,
+      'NIVEL DE ESTRES',
+    }));
 
-  let X = datos.map(({ EDAD, MASCULINO }) => ({ EDAD, MASCULINO }));
-  let y = datos.map(({ 'NIVEL DE ESTRES' }) => 'NIVEL DE ESTRES');
-  let [X_ent, X_pru, y_ent, y_pru] = dividirDatos(X, y, 0.2);
+    datos = datos.map(({ EDAD, SEXO, 'NIVEL DE ESTRES' }) => ({
+      EDAD,
+      MASCULINO: SEXO === 1 ? 1 : 0,
+      'NIVEL DE ESTRES',
+    }));
 
-  let modelo = trainDecisionTree(X_ent, y_ent);
+    datos = datos.map(({ EDAD, MASCULINO, 'NIVEL DE ESTRES' }) => ({ EDAD, MASCULINO, 'NIVEL DE ESTRES' }));
 
-  let predicciones = X_pru.map((dato) => modelo.predict(dato));
+    let X = datos.map(({ EDAD, MASCULINO }) => ({ EDAD, MASCULINO }));
+    let y = datos.map(({ 'NIVEL DE ESTRES' }) => 'NIVEL DE ESTRES');
+    let [X_ent, X_pru, y_ent, y_pru] = dividirDatos(X, y, 0.2);
 
-  let precision = calcularPrecision(y_pru, predicciones);
-  console.log(`Precisión: ${precision}`);
+    let modelo = trainDecisionTree(X_ent, y_ent);
 
-  let nuevaPersona = { EDAD: 17, MASCULINO: 1 };
-  let nuevaPersonaPrediccion = modelo.predict(nuevaPersona);
-  console.log(`Nivel de estrés: ${nuevaPersonaPrediccion}`);
-});
+    let predicciones = X_pru.map((dato) => modelo.predict(dato));
+
+    let precision = calcularPrecision(y_pru, predicciones);
+    console.log(`Precisión: ${precision}`);
+
+    let nuevaPersonaPrediccion = modelo.predict(nuevaPersona);
+    resultadoContainer.innerHTML = `Nivel de estrés predicho: ${nuevaPersonaPrediccion}`;
+  });
+}
 
 
