@@ -37,7 +37,6 @@ function calcularPrecision(y_true, y_pred) {
 function predecir() {
   const edadInput = document.getElementById('edad');
   const sexoInput = document.getElementById('sexo');
-  const resultadoContainer = document.getElementById('resultado-container');
 
   const nuevaPersona = {
     EDAD: parseInt(edadInput.value),
@@ -71,7 +70,9 @@ function predecir() {
     console.log(`Precisión: ${precision}`);
 
     let nuevaPersonaPrediccion = modelo.predict(nuevaPersona);
-    resultadoContainer.innerHTML = `Nivel de estrés predicho: ${nuevaPersonaPrediccion}`;
+    
+    // Mostrar el resultado en una ventana de alerta
+    alert(`Nivel de estrés predicho: ${nuevaPersonaPrediccion}`);
   });
 }
 
